@@ -1,0 +1,12 @@
+---
+import { t } from "../i18n";
+const dict = t("es");
+const year = new Date().getFullYear();
+---
+<footer class="border-t border-zinc-200 py-8">
+<footer class="border-t border-antracita py-8">
+  <div class="flex flex-col gap-3 text-sm text-suave sm:flex-row sm:items-center sm:justify-between">
+    <p>© {year} {dict.site.name}.</p>
+    <p>{dict.footer.note}</p>
+  </div>
+</footer>

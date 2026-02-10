@@ -1,0 +1,39 @@
+---
+import { t } from "../i18n";
+const dict = t("es");
+const pathname = Astro.url.pathname;
+
+function isActive(href: string) {
+  return pathname === href;
+}
+---
+<header class="py-6">
+  <div class="rounded-2xl bg-carbon/20 px-4 py-3 backdrop-blur">
+    <div class="flex items-center justify-between gap-6">
+      <a href="/" class="group inline-flex items-center gap-3">
+        <span
+          class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-roto text-sm font-semibold text-carbon"
+        aria-hidden="true"
+      >
+        DF
+      </span>
+    </a>
+
+    <nav aria-label="Navegacion principal">
+      <ul class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+        <li>
+          <a
+            class:list={[
+              "rounded-md px-2 py-1 transition hover:bg-antracita",
+              isActive("/") ? "bg-antracita font-medium text-roto" : "text-suave hover:text-roto"
+            ]}
+            href="/"
+          >
+            {dict.nav.home}
+          </a>
+        </li>
+      </ul>
+    </nav>
+    </div>
+  </div>
+</header>

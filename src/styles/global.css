@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pequeñas mejoras globales sin "hacks": tipografia, enfoque, etc. */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fondo menos "negro puro": textura grisacea con profundidad (sin assets) */
+body {
+  background-image:
+    radial-gradient(900px 520px at 18% 12%, rgba(245, 245, 245, 0.07), transparent 60%),
+    radial-gradient(720px 460px at 78% 72%, rgba(245, 245, 245, 0.05), transparent 62%),
+    linear-gradient(rgba(245, 245, 245, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 245, 245, 0.028) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+}
+
+/* Foco visible accesible */
+:focus-visible {
+  outline: 2px solid #F5F5F5;
+  outline-offset: 3px;
+}
+
+/* Animaciones al scrollear: marca cualquier bloque con `data-reveal` */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 600ms ease, transform 600ms ease;
+  will-change: opacity, transform;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Efecto 3D "tilt" (inclinacion) activable con `data-tilt` */
+[data-tilt] {
+  transform-style: preserve-3d;
+  perspective: 900px;
+}
+
+[data-tilt] .tilt-surface {
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  will-change: transform;
+}
+
+[data-tilt].is-tilting .tilt-surface {
+  transition: none;
+}
+
+[data-tilt] .tilt-glare {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    380px 260px at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.20),
+    rgba(255, 255, 255, 0) 60%
+  );
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+[data-tilt].is-tilting .tilt-glare {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tilt] .tilt-surface {
+    transform: none;
+    transition: none;
+  }
+  [data-tilt] .tilt-glare {
+    display: none;
+  }
+}

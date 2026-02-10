@@ -1,0 +1,39 @@
+---
+import type { PortfolioItem } from "../data/portfolio";
+
+type Props = {
+  items: PortfolioItem[];
+};
+
+const { items } = Astro.props;
+---
+<section aria-label="Galeria" class="mt-8">
+  <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {items.map((item) => (
+      <li
+        data-tilt
+        data-tilt-max="9"
+        class="group overflow-hidden rounded-2xl border border-antracita bg-antracita/60 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
+      >
+        <div class="tilt-surface relative">
+          <div class="relative aspect-[4/3] bg-carbon">
+          <img
+            src={item.src}
+            alt={item.alt}
+            loading="lazy"
+            class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+          />
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+        </div>
+          <div class="tilt-glare"></div>
+        <div class="flex items-start justify-between gap-4 p-4">
+          <div class="min-w-0">
+            <p class="truncate text-sm font-medium text-roto">{item.title}</p>
+            {item.tag ? <p class="mt-1 text-xs text-suave">{item.tag}</p> : null}
+          </div>
+        </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>

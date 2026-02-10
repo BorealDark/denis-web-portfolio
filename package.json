@@ -1,0 +1,19 @@
+{
+  "name": "denis-web-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "latest"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "latest",
+    "tailwindcss": "latest"
+  }
+}
+
