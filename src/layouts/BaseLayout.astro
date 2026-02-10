@@ -77,52 +77,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         }
       }
 
-      // Efecto 3D "tilt" por puntero. Usa `data-tilt` en el contenedor.
-      // Ajustes: `data-tilt-max="10"` (grados). Si no existe, usa 10.
-      const tiltEls = document.querySelectorAll("[data-tilt]");
-      if (tiltEls.length && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        for (const el of tiltEls) {
-          let raf = 0;
-          const max = Number(el.getAttribute("data-tilt-max") || "10");
-
-          const update = (clientX, clientY) => {
-            const rect = el.getBoundingClientRect();
-            const x = (clientX - rect.left) / rect.width; // 0..1
-            const y = (clientY - rect.top) / rect.height; // 0..1
-
-            // Centro 0,0. Rotaciones invertidas para sensacion natural.
-            const ry = (x - 0.5) * (max * 2);
-            const rx = -(y - 0.5) * (max * 2);
-
-            el.style.setProperty("--rx", `${rx.toFixed(2)}deg`);
-            el.style.setProperty("--ry", `${ry.toFixed(2)}deg`);
-            el.style.setProperty("--gx", `${(x * 100).toFixed(1)}%`);
-            el.style.setProperty("--gy", `${(y * 100).toFixed(1)}%`);
-          };
-
-          const onMove = (e) => {
-            const p = e.touches?.[0] ?? e;
-            if (raf) cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => update(p.clientX, p.clientY));
-          };
-
-          const onEnter = () => el.classList.add("is-tilting");
-          const onLeave = () => {
-            el.classList.remove("is-tilting");
-            el.style.setProperty("--rx", "0deg");
-            el.style.setProperty("--ry", "0deg");
-          };
-
-          el.addEventListener("pointerenter", onEnter, { passive: true });
-          el.addEventListener("pointermove", onMove, { passive: true });
-          el.addEventListener("pointerleave", onLeave, { passive: true });
-
-          // Opcional: soporte tactil simple
-          el.addEventListener("touchstart", onEnter, { passive: true });
-          el.addEventListener("touchmove", onMove, { passive: true });
-          el.addEventListener("touchend", onLeave, { passive: true });
-        }
-      }
+      // Nota: efecto 3D eliminado. La galeria usa lightbox (click) en su lugar.
     </script>
   </body>
 </html>

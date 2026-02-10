@@ -1,0 +1,142 @@
+---
+import type { PortfolioItem } from "../data/portfolio";
+
+type Props = {
+  items: PortfolioItem[];
+};
+
+const { items } = Astro.props;
+---
+<div
+  class="fixed inset-0 z-[9999] hidden bg-carbon isolate"
+  data-lightbox
+  role="dialog"
+  aria-modal="true"
+  aria-hidden="true"
+  tabindex="-1"
+  style="background: #0E0E0E;"
+>
+  <div class="relative grid h-dvh w-dvw place-items-center p-0">
+    <button
+      type="button"
+      class="absolute left-0 top-0 h-full w-28 cursor-pointer select-none text-roto/80 opacity-70 transition hover:opacity-100 focus:opacity-100 sm:w-36"
+      aria-label="Imagen anterior"
+      data-lightbox-prev
+      data-lightbox-stop
+    >
+      <span class="absolute left-6 top-1/2 -translate-y-1/2 text-6xl font-light">&lt;</span>
+    </button>
+
+    <button
+      type="button"
+      class="absolute right-0 top-0 h-full w-28 cursor-pointer select-none text-roto/80 opacity-70 transition hover:opacity-100 focus:opacity-100 sm:w-36"
+      aria-label="Imagen siguiente"
+      data-lightbox-next
+      data-lightbox-stop
+    >
+      <span class="absolute right-6 top-1/2 -translate-y-1/2 text-6xl font-light">&gt;</span>
+    </button>
+
+    <div class="flex h-dvh w-dvw items-center justify-center p-4">
+      <div class="flex h-[92dvh] w-[92dvw] max-w-6xl items-center justify-center" data-lightbox-stop>
+        <img
+          data-lightbox-img
+          src=""
+          alt=""
+          class="h-full w-full object-contain"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ items }}>
+  const itemsData = items;
+
+  const modal = document.querySelector("[data-lightbox]");
+  const imgEl = modal?.querySelector("[data-lightbox-img]");
+  const prevBtn = modal?.querySelector("[data-lightbox-prev]");
+  const nextBtn = modal?.querySelector("[data-lightbox-next]");
+
+  let index = 0;
+  let lastFocused = null;
+  let scrollLockPadding = "";
+  let bodyOverflow = "";
+  let htmlOverflow = "";
+
+  const setNavVisibility = () => {
+    const many = (itemsData || []).length > 1;
+    if (prevBtn) prevBtn.style.display = many ? "" : "none";
+    if (nextBtn) nextBtn.style.display = many ? "" : "none";
+  };
+
+  const setSlide = (i) => {
+    if (!itemsData?.length) return;
+    index = (i + itemsData.length) % itemsData.length;
+    const it = itemsData[index];
+    imgEl.src = it.src;
+    imgEl.alt = it.alt || it.title || "Imagen del portfolio";
+    setNavVisibility();
+  };
+
+  const open = (i) => {
+    lastFocused = document.activeElement;
+    setSlide(i);
+
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+
+    // Evita que el layout "se mueva" al desaparecer la barra de scroll.
+    const sw = window.innerWidth - document.documentElement.clientWidth;
+    scrollLockPadding = document.documentElement.style.paddingRight || "";
+    htmlOverflow = document.documentElement.style.overflow || "";
+    bodyOverflow = document.body.style.overflow || "";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.paddingRight = sw > 0 ? `${sw}px` : scrollLockPadding;
+
+    modal.focus?.();
+  };
+
+  const close = () => {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    document.documentElement.style.overflow = htmlOverflow;
+    document.body.style.overflow = bodyOverflow;
+    document.documentElement.style.paddingRight = scrollLockPadding;
+    lastFocused?.focus?.();
+  };
+
+  // Importante: si el contenedor padre tiene `transform` (por ejemplo data-reveal),
+  // `position: fixed` deja de ser viewport-fixed en algunos navegadores.
+  // Movemos el modal a <body> para que siempre cubra toda la pantalla.
+  if (modal && modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+
+  // Delegacion: cualquier boton con data-gallery-open abre el lightbox.
+  document.addEventListener("click", (e) => {
+    const btn = e.target?.closest?.("[data-gallery-open]");
+    if (!btn) return;
+    const i = Number(btn.getAttribute("data-index") || "0");
+    open(i);
+  });
+
+  prevBtn?.addEventListener("click", () => setSlide(index - 1));
+  nextBtn?.addEventListener("click", () => setSlide(index + 1));
+
+  // Click fuera (cualquier sitio que no sea imagen o zonas de nav): cerrar.
+  modal.addEventListener("pointerdown", (e) => {
+    const target = e.target;
+    if (target?.closest?.("[data-lightbox-stop]")) return;
+    close();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (modal.classList.contains("hidden")) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") setSlide(index - 1);
+    if (e.key === "ArrowRight") setSlide(index + 1);
+  });
+</script>
