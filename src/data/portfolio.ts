@@ -5,31 +5,36 @@ export type PortfolioItem = {
   tag?: string;
 };
 
-// Placeholder: apunta a rutas en /public/images. No falla el build si aun no existen.
+// Apunta a rutas en /public/images/2-portfolio.
 export const portfolioItems: PortfolioItem[] = [
   {
-    title: "Retrato editorial",
-    alt: "Retrato editorial en interior con luz suave",
-    src: "/images/ejemplo-1.jpg",
-    tag: "Retrato"
+    title: "Portfolio 01",
+    alt: "Fotografia del portfolio 1",
+    src: "/images/2-portfolio/portfolio-1.jpg"
   },
   {
-    title: "Evento",
-    alt: "Foto de evento con personas conversando",
-    src: "/images/ejemplo-2.jpg",
-    tag: "Eventos"
+    title: "Portfolio 02",
+    alt: "Fotografia del portfolio 2",
+    src: "/images/2-portfolio/portfolio-2.jpg"
   },
   {
-    title: "Producto",
-    alt: "Fotografia de producto sobre fondo neutro",
-    src: "/images/ejemplo-3.jpg",
-    tag: "Producto"
+    title: "Portfolio 03",
+    alt: "Fotografia del portfolio 3",
+    src: "/images/2-portfolio/portfolio-3.jpg"
   },
   {
-    title: "Exterior",
-    alt: "Sesion en exterior con atardecer",
-    src: "/images/ejemplo-4.jpg",
-    tag: "Exterior"
+    title: "Portfolio 04",
+    alt: "Fotografia del portfolio 4",
+    src: "/images/2-portfolio/portfolio-4.jpg"
+  },
+  {
+    title: "Portfolio 05",
+    alt: "Fotografia del portfolio 5",
+    src: "/images/2-portfolio/portfolio-5.jpg"
+  },
+  {
+    title: "Portfolio 06",
+    alt: "Fotografia del portfolio 6",
+    src: "/images/2-portfolio/portfolio-6.jpg"
   }
 ];
-

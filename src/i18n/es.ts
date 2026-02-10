@@ -27,7 +27,7 @@ export const es = {
     h1: "Denis Alonso Carrasco",
     intro: "Fotografo y editor. Retrato, editorial y eventos con un acabado limpio y atemporal.",
     heroAlt: "Fotografia vertical de Denis en una sesion",
-    heroImage: "/images/fotografo-inicio.jpg",
+    heroImage: "/images/1-start/fotografo-inicio.jpg",
     ctaContacto: "Escribeme por correo"
   },
   portfolio: {

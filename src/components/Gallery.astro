@@ -3,16 +3,25 @@ import type { PortfolioItem } from "../data/portfolio";
 
 type Props = {
   items: PortfolioItem[];
+  reveal?: boolean;
+  delayStart?: number;
+  delayStep?: number;
 };
 
 const { items } = Astro.props;
+const reveal = Astro.props.reveal ?? false;
+const delayStart = Astro.props.delayStart ?? 0;
+const delayStep = Astro.props.delayStep ?? 70;
 ---
 <section aria-label="Galeria" class="mt-8">
   <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {items.map((item) => (
+    {items.map((item, idx) => (
       <li
         data-tilt
         data-tilt-max="9"
+        data-reveal={reveal ? "" : undefined}
+        data-reveal-image={reveal ? "" : undefined}
+        data-delay={reveal ? String(delayStart + idx * delayStep) : undefined}
         class="group overflow-hidden rounded-2xl border border-antracita bg-antracita/60 shadow-[0_1px_0_rgba(255,255,255,0.04)]"
       >
         <div class="tilt-surface relative">

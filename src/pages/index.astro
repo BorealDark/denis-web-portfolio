@@ -1,13 +1,16 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Gallery from "../components/Gallery.astro";
 import { t } from "../i18n";
+import { portfolioItems } from "../data/portfolio";
 
 const dict = t("es");
 ---
-<BaseLayout title={dict.seo.homeTitle} description={dict.seo.homeDescription}>
+<BaseLayout title={dict.seo.homeTitle} description={dict.seo.homeDescription} noTopPadding snap>
   <section
-    class="relative flex min-h-[calc(100dvh-6rem)] items-center overflow-hidden"
-    aria-label="Inicio"
+    id="hero-stage"
+    class="relative h-[200vh] overflow-hidden snap-none"
+    aria-label="Diapositiva 1"
   >
     <div class="pointer-events-none absolute inset-0 -z-10">
       <div class="absolute -left-28 top-10 h-72 w-72 rounded-full bg-roto/10 blur-3xl"></div>
@@ -15,29 +18,247 @@ const dict = t("es");
       <div class="absolute inset-x-0 bottom-[-120px] h-56 bg-gradient-to-t from-carbon/60 to-transparent"></div>
     </div>
 
-    <div class="grid w-full items-center gap-10 lg:grid-cols-12">
-      <div class="lg:col-span-7" data-reveal>
-        <h1 class="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-          {dict.home.h1}
-        </h1>
-        <p class="mt-5 max-w-xl text-pretty text-base leading-relaxed text-suave sm:text-lg">
-          {dict.home.intro}
-        </p>
-      </div>
+    <div class="sticky top-0 flex h-dvh items-center">
+      <div class="grid w-full items-center gap-10 px-0 pt-24 lg:grid-cols-12">
+        <div id="hero-copy" class="relative z-20 lg:col-span-7">
+          <h1 class="text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+            {dict.home.h1}
+          </h1>
+          <p class="mt-5 max-w-xl text-pretty text-base leading-relaxed text-suave sm:text-lg">
+            {dict.home.intro}
+          </p>
+        </div>
 
-      <div class="lg:col-span-5" data-reveal data-delay="120">
-        <div class="mx-auto w-full max-w-sm">
-          <figure class="overflow-hidden rounded-3xl border border-roto/10 bg-carbon/20 shadow-[0_18px_50px_rgba(0,0,0,0.55)]">
-            <img
-              src={dict.home.heroImage}
-              alt={dict.home.heroAlt}
-              class="h-[58dvh] w-full object-cover sm:h-[62dvh] lg:h-[68dvh]"
-              loading="eager"
-              decoding="async"
-            />
-          </figure>
+        <div class="lg:col-span-5">
+          <div class="mx-auto w-full max-w-sm">
+            <figure
+              id="hero-figure"
+              class="overflow-hidden rounded-3xl border border-roto/10 bg-carbon/20 shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
+            >
+              <img
+                src={dict.home.heroImage}
+                alt={dict.home.heroAlt}
+                class="h-[58dvh] w-full object-cover sm:h-[62dvh] lg:h-[68dvh]"
+                loading="eager"
+                decoding="async"
+              />
+            </figure>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Clon fijo para la transicion (evita "saltos" y permite fullscreen real) -->
+    <div id="hero-fx" class="pointer-events-none fixed inset-0 z-10 hidden" aria-hidden="true">
+      <div
+        id="hero-fx-surface"
+        class="absolute left-0 top-0 overflow-hidden border border-roto/10 bg-carbon/20 shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
+        style="transform-origin: 0 0; border-radius: 24px; transform: translate3d(0,0,0) scale(1);"
+      >
+        <img
+          src={dict.home.heroImage}
+          alt=""
+          class="h-full w-full object-cover"
+          decoding="async"
+          loading="eager"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-carbon/35 via-transparent to-transparent"></div>
+      </div>
+    </div>
   </section>
+
+  <!-- Diapositiva 2: Portfolio (pantalla completa, sin sticky extra) -->
+  <section
+    id="portfolio"
+    class="min-h-dvh snap-start pt-24 pb-16 transition-opacity duration-300"
+    style="opacity: 0; pointer-events: none;"
+    aria-label="Diapositiva 2"
+    aria-hidden="true"
+  >
+    <header class="max-w-2xl" data-reveal>
+      <p class="text-xs font-medium tracking-[0.22em] text-suave">PORTFOLIO</p>
+      <h2 class="mt-3 text-balance text-2xl font-semibold tracking-tight text-roto sm:text-3xl">
+        Una seleccion de 6 imagenes
+      </h2>
+    </header>
+
+    <div class="mt-5" data-reveal data-delay="80">
+      <Gallery items={portfolioItems.slice(0, 6)} reveal delayStart={120} delayStep={85} />
+    </div>
+  </section>
+
+  <script is:inline>
+    // Transicion: la imagen del inicio crece a fullscreen y se desvanece al entrar en portfolio.
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stage = document.getElementById("hero-stage");
+    const fig = document.getElementById("hero-figure");
+    const copy = document.getElementById("hero-copy");
+    const fx = document.getElementById("hero-fx");
+    const surface = document.getElementById("hero-fx-surface");
+    const slide2 = document.getElementById("portfolio");
+
+    if (!reduce && stage && fig && fx && surface) {
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      let raf = 0;
+      let start = null;
+      const heroImg = fig.querySelector("img");
+
+      const measure = () => {
+        const r = fig.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const computed = window.getComputedStyle(fig);
+        const radius = Number.parseFloat(computed.borderTopLeftRadius || "24") || 24;
+
+        // Escala necesaria para cubrir viewport manteniendo el centro en el mismo sitio.
+        const cover = Math.max(vw / r.width, vh / r.height) * 1.03;
+
+        surface.style.width = `${r.width.toFixed(1)}px`;
+        surface.style.height = `${r.height.toFixed(1)}px`;
+        surface.style.borderRadius = `${radius.toFixed(1)}px`;
+
+        const startCx = r.left + r.width / 2;
+        const startCy = r.top + r.height / 2;
+
+        start = {
+          tx: r.left,
+          ty: r.top,
+          w: r.width,
+          h: r.height,
+          cx: startCx,
+          cy: startCy,
+          radius,
+          cover
+        };
+      };
+
+      const progress = () => {
+        // Usamos TODA la altura de la diapositiva 1 (incluida la parte final donde el sticky se "despega")
+        // para que el efecto termine cuando la diapositiva 2 ya este arriba del todo.
+        const startY = stage.getBoundingClientRect().top + window.scrollY;
+        const endY = startY + stage.offsetHeight;
+        const denom = Math.max(1, endY - startY);
+        return clamp((window.scrollY - startY) / denom, 0, 1);
+      };
+
+      const update = () => {
+        const p = progress();
+
+        // Recalcula SIEMPRE para evitar desajustes por zoom/layout durante todo el scroll.
+        // El elemento original sigue en layout (solo opacity 0), asi que el rect es fiable.
+        measure();
+
+        // Desde el primer render, el clon es el "objeto movible" para evitar saltos al iniciar el scroll.
+        fx.classList.remove("hidden");
+        fig.style.opacity = "0";
+        fig.style.pointerEvents = "none";
+
+        // Fase 1: primeros scrolls centran la imagen y desvanecen el texto.
+        const toCenterT = 0.22; // 0..1 -> porcentaje de progreso dedicado a centrar
+        const tCenter = clamp(p / toCenterT, 0, 1);
+        const te = easeInOut(tCenter);
+
+        // El texto se mantiene fijo pero se desvanece durante el centrado.
+        if (copy) {
+          copy.style.opacity = String(lerp(1, 0, te));
+          copy.style.transform = "none";
+        }
+
+        // Centro objetivo: centro de viewport (un poco compensado por el padding-top del layout).
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const targetCx = vw * 0.5;
+        const targetCy = vh * 0.5;
+
+        // Centro actual (fase 1) interpolado hacia el centro.
+        const cx = lerp(start.cx, targetCx, te);
+        const cy = lerp(start.cy, targetCy, te);
+
+        // Fase 2: una vez centrado, escalar desde el centro para cubrir.
+        const tScale = clamp((p - toCenterT) / (1 - toCenterT), 0, 1);
+        const ps = easeInOut(tScale);
+        const scale = lerp(1, start.cover, ps);
+        const radius = lerp(start.radius, 0, ps);
+
+        // Con transform-origin 0 0, colocamos la esquina superior izquierda para mantener el centro.
+        const tx = cx - (start.w * scale) / 2;
+        const ty = cy - (start.h * scale) / 2;
+
+        // Reduce borde/sombra conforme crece (evita "doble marco" visual).
+        const frameT = clamp(tScale / 0.55, 0, 1);
+        const shadowAlpha = lerp(0.55, 0.0, frameT);
+        surface.style.boxShadow = `0 18px 50px rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
+        surface.style.borderColor = `rgba(245,245,245,${lerp(0.10, 0.0, frameT).toFixed(3)})`;
+
+        // Fade out final: el final del stage-1 coincide con el inicio de la diapositiva 2.
+        const outT = clamp((p - 0.82) / 0.18, 0, 1);
+        surface.style.opacity = String(lerp(1, 0, outT));
+        surface.style.borderRadius = `${radius.toFixed(1)}px`;
+        surface.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(
+          4
+        )})`;
+
+        // Diapositiva 2: invisible hasta que la imagen se desvanece por completo.
+        if (slide2) {
+          const show = outT >= 1;
+          slide2.style.opacity = show ? "1" : "0";
+          slide2.style.pointerEvents = show ? "auto" : "none";
+          slide2.setAttribute("aria-hidden", show ? "false" : "true");
+        }
+      };
+
+      const schedule = () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          update();
+        });
+      };
+
+      measure();
+      window.addEventListener("scroll", schedule, { passive: true });
+      window.addEventListener("resize", () => {
+        start = null;
+        schedule();
+      });
+
+      // Zoom en algunos navegadores dispara eventos en visualViewport (mas fiable que resize).
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+          start = null;
+          schedule();
+        });
+        window.visualViewport.addEventListener("scroll", () => {
+          start = null;
+          schedule();
+        });
+      }
+
+      // Fuentes o imagen pueden cambiar medidas tras el primer render.
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => {
+          start = null;
+          schedule();
+        });
+      }
+      if (heroImg) {
+        const refresh = () => {
+          start = null;
+          schedule();
+        };
+        heroImg.addEventListener("load", refresh, { once: true });
+        heroImg.decode?.().then(refresh).catch(() => {});
+      }
+      schedule();
+    }
+
+    // Sin animaciones (reduce motion): muestra la diapositiva 2 normal.
+    if (reduce && slide2) {
+      slide2.style.opacity = "1";
+      slide2.style.pointerEvents = "auto";
+      slide2.setAttribute("aria-hidden", "false");
+    }
+  </script>
 </BaseLayout>

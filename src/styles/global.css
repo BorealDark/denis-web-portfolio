@@ -11,13 +11,21 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fondo menos "negro puro": textura grisacea con profundidad (sin assets) */
-body {
+/* Fondo menos "negro puro": textura grisacea con profundidad (sin assets)
+   Importante: lo fijamos al viewport para que el patron no "suba" con el scroll
+   y no se coma la sensacion de las animaciones sticky/FLIP.
+*/
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
   background-image:
     radial-gradient(900px 520px at 18% 12%, rgba(245, 245, 245, 0.07), transparent 60%),
     radial-gradient(720px 460px at 78% 72%, rgba(245, 245, 245, 0.05), transparent 62%),
-    linear-gradient(rgba(245, 245, 245, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245, 245, 245, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(245, 245, 245, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 245, 245, 0.022) 1px, transparent 1px);
   background-size: auto, auto, 44px 44px, 44px 44px;
   background-position: 0 0, 0 0, -1px -1px, -1px -1px;
 }
@@ -41,11 +49,24 @@ body {
   transform: translateY(0);
 }
 
+/* Variante para imagenes: "cortina" ligera + lift */
+[data-reveal][data-reveal-image] {
+  transform: translateY(16px);
+  clip-path: inset(10% 0 0 0 round 16px);
+}
+
+[data-reveal][data-reveal-image].is-visible {
+  clip-path: inset(0 0 0 0 round 16px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  [data-reveal][data-reveal-image] {
+    clip-path: none;
   }
 }
 

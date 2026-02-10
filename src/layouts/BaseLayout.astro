@@ -7,16 +7,18 @@ import "../styles/global.css";
 type Props = {
   title: string;
   description: string;
+  noTopPadding?: boolean;
+  snap?: boolean;
 };
 
-const { title, description } = Astro.props;
+const { title, description, noTopPadding = false, snap = false } = Astro.props;
 const dict = t("es");
 
 const fullTitle = `${title} | ${dict.site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
-<html lang="es">
+<html lang="es" class:list={[snap ? "snap-y snap-proximity" : null]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <div class="absolute inset-x-0 top-0 z-20">
           <Header />
         </div>
-        <main id="contenido" class="flex-1 pt-24">
+        <main id="contenido" class:list={["flex-1", noTopPadding ? "pt-0" : "pt-24"]}>
           <slot />
         </main>
         <Footer />
